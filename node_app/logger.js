@@ -1,9 +1,11 @@
+const path = require('path');
 const {createLogger, format, transports} = require('winston');
 const {combine, timestamp, label, printf, errors} = format;
 
 const logFormat = printf(({level, message, label, timestamp, stack}) => {
-  return `${timestamp} [${label}] ${level}: ${stack || message}`;
+  return `\n\n ${timestamp} [${label}] ${level}: ${stack || message}`;
 });
+
 
 const logger = createLogger({
   level: 'info',
@@ -15,11 +17,11 @@ const logger = createLogger({
   ),
   transports: [
     new transports.Console(),
-    new transports.File({filename: 'combined.log'}),
-    new transports.File({filename: 'error.log', level: 'error'})
+    new transports.File({filename: path.join(__dirname, 'logs', 'combined.log')}),
+    new transports.File({filename: path.join(__dirname, 'logs', 'error.log'), level: 'error'}),
   ],
   exceptionHandlers: [
-    new transports.File({filename: 'exceptions.log'})
+    new transports.File({filename: path.join(__dirname, 'logs', 'exceptions.log')})
   ]
 });
 
