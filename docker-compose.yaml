@@ -1,12 +1,14 @@
 services:
   grafana:
     container_name: grafana
-    image: grafana/grafana-enterprise
+    image: grafana/grafana:latest
     ports:
       - '3000:3000'
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - v_grafana_data:/var/lib/grafana
 
   prometheus:
     image: prom/prometheus:latest
@@ -19,6 +21,26 @@ services:
       - --config.file=/etc/prometheus/prometheus.yaml
       - --web.enable-lifecycle
 
+  loki:
+    image: grafana/loki:2.9.2
+    container_name: loki
+    user: root
+    ports:
+      - '9095:9095'
+      - '3100:3100'
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - v_loki_data:/loki
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    container_name: promtail
+    volumes:
+      - ./promtail-config.yaml:/etc/promtail/config.yml
+      - ./node_app/logs:/var/log/node_app
+    command: -config.file=/etc/promtail/config.yml
+
   nodejs_app:
     build:
       context: ./node_app
@@ -27,8 +49,12 @@ services:
     ports:
       - '3001:3001'
     volumes:
-      - nodejs_app_node_modules:/opt/app/node_modules
+      - v_nodejs_app_node_modules:/opt/app/node_modules
       - ./node_app:/opt/app
+      - ./node_app/logs:/opt/app/logs
 
 volumes:
-  nodejs_app_node_modules: {}
+  v_nodejs_app_node_modules: {}
+  v_loki_data: {}
+  v_logs: {}
+  v_grafana_data: {}
