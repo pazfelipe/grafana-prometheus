@@ -36,9 +36,22 @@ route.get(
 route.get(
   "/failing-2",
   (req, res) => {
-    const myConst = 10
-    myConst = "a new string"
+    const myConst = 10;
+    myConst = "a new string";
     res.send({message: "Return 200"}).status(200);
+  }
+);
+route.get(
+  "/delayed",
+  async (req, res) => {
+    const {time} = req.query;
+    const promise = (time) => new Promise((resolve) => {
+      setTimeout(() => {
+        return resolve(`Promise resolved after ${time} miliseconds`);
+      }, time);
+    });
+    const resolved = await promise(time || 2000);
+    res.send({message: resolved}).status(200);
   }
 );
 
