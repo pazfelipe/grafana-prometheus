@@ -56,5 +56,4 @@ services:
 volumes:
   v_nodejs_app_node_modules: {}
   v_loki_data: {}
-  v_logs: {}
   v_grafana_data: {}
